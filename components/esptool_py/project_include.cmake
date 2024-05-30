@@ -80,6 +80,7 @@ set(PROJECT_BIN "${elf_name}.bin")
 add_custom_command(OUTPUT "${build_dir}/.bin_timestamp"
     COMMAND ${ESPTOOLPY} elf2image ${ESPTOOLPY_FLASH_OPTIONS} ${ESPTOOLPY_ELF2IMAGE_OPTIONS}
         -o "${build_dir}/${unsigned_project_binary}" "${elf}"
+    COMMAND /bin/sh -c "if [[ -e '${build_dir}/${unsigned_project_binary}0x00000.bin' ]]; then cp '${build_dir}/${unsigned_project_binary}0x00000.bin' '${build_dir}/${unsigned_project_binary}'; fi"
     COMMAND ${CMAKE_COMMAND} -E echo "Generated ${build_dir}/${unsigned_project_binary}"
     COMMAND ${CMAKE_COMMAND} -E md5sum "${build_dir}/${unsigned_project_binary}" > "${build_dir}/.bin_timestamp"
     DEPENDS ${elf}
