@@ -26,8 +26,7 @@ PYTHON ?= $(call dequote,$(CONFIG_PYTHON))
 # two commands that can be used from other components
 # to invoke esptool.py (with or without serial port args)
 #
-ESPTOOLPY_SRC := $(COMPONENT_PATH)/esptool/esptool.py
-ESPTOOLPY := $(PYTHON) $(ESPTOOLPY_SRC) --chip esp8266
+ESPTOOLPY := esptool.py --chip esp8266
 ESPTOOLPY_SERIAL := $(ESPTOOLPY) --port $(ESPPORT) --baud $(ESPBAUD) --before $(CONFIG_ESPTOOLPY_BEFORE) --after $(CONFIG_ESPTOOLPY_AFTER)
 
 # Supporting esptool command line tools
@@ -68,17 +67,17 @@ endif
 # non-secure boot (or bootloader), both these files are the same
 APP_BIN_UNSIGNED ?= $(APP_BIN)
 
-$(APP_BIN_UNSIGNED): $(APP_ELF) $(ESPTOOLPY_SRC)
+$(APP_BIN_UNSIGNED): $(APP_ELF)
 	$(ESPTOOLPY) elf2image $(ESPTOOL_FLASH_OPTIONS) $(ESPTOOL_ELF2IMAGE_OPTIONS) -o $@ $<
 
-flash: all_binaries $(ESPTOOLPY_SRC) $(call prereq_if_explicit,erase_flash)
+flash: all_binaries $(call prereq_if_explicit,erase_flash)
 	@echo "Flashing binaries to serial port $(ESPPORT) (app at offset $(APP_OFFSET))..."
 ifdef CONFIG_SECURE_BOOT_ENABLED
 	@echo "(Secure boot enabled, so bootloader not flashed automatically. See 'make bootloader' output)"
 endif
 	$(ESPTOOLPY_WRITE_FLASH) $(ESPTOOL_ALL_FLASH_ARGS)
 
-app-flash: $(APP_BIN) $(ESPTOOLPY_SRC) $(call prereq_if_explicit,erase_flash)
+app-flash: $(APP_BIN) $(call prereq_if_explicit,erase_flash)
 	@echo "Flashing app to serial port $(ESPPORT), offset $(APP_OFFSET)..."
 	$(ESPTOOLPY_WRITE_FLASH) $(APP_OFFSET) $(APP_BIN)
 
